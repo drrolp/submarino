@@ -4,7 +4,106 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Submarino</title>
-    <link rel="stylesheet" href="styles.css" />
+    <style>
+      :root {
+        --bg: #061728;
+        --panel: #0f2740;
+        --panel-soft: #12395a;
+        --primary: #56d3ff;
+        --success: #33d17a;
+        --danger: #ff6575;
+        --text: #eaf7ff;
+        --muted: #9ec5d6;
+        --cell: #0a1f32;
+        --cell-alt: #102e46;
+        --ship: #6dd7ff;
+        --hit: #ff7f7f;
+        --miss: #a8c5d1;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(180deg, #061728 0%, #0a2240 100%);
+        color: var(--text);
+      }
+      .app-shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      .panel {
+        background: rgba(15, 39, 64, 0.96);
+        border: 1px solid rgba(86, 211, 255, 0.2);
+        border-radius: 18px;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+        padding: 24px;
+      }
+      .hidden { display: none !important; }
+      .grid { display: grid; gap: 24px; }
+      .two-columns { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+      .card {
+        background: rgba(19, 52, 84, 0.9);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      label { display: flex; flex-direction: column; gap: 8px; color: var(--muted); }
+      input {
+        background: rgba(8, 20, 34, 0.9);
+        color: var(--text);
+        border: 1px solid rgba(86, 211, 255, 0.3);
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      button {
+        border: none;
+        padding: 12px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        background: #dfeaf3;
+        color: #082030;
+      }
+      button.primary { background: var(--primary); color: #041b2d; }
+      button.success { background: var(--success); color: #07231a; }
+      button.secondary { background: rgba(255,255,255,0.08); color: var(--text); }
+      .section-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+      .player-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 20px 0; }
+      .player-card {
+        background: rgba(13, 31, 51, 0.9);
+        border: 1px solid rgba(86, 211, 255, 0.18);
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .player-card.ready { border-color: rgba(51, 209, 122, 0.8); }
+      .player-card.host { box-shadow: inset 0 0 0 1px rgba(245, 196, 81, 0.8); }
+      .player-name { display: block; font-weight: 700; margin-bottom: 8px; }
+      .player-badge { display: inline-block; background: rgba(86,211,255,0.18); color: var(--primary); border-radius: 999px; padding: 4px 8px; font-size: 0.75rem; }
+      .action-bar { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; }
+      .log-box { background: rgba(7, 19, 31, 0.8); border-radius: 14px; padding: 16px; }
+      .log-box ul { margin: 0; padding-left: 18px; color: var(--muted); }
+      .game-grid { display: grid; grid-template-columns: minmax(300px, 420px) minmax(300px, 1fr); gap: 24px; }
+      .board-panel { background: rgba(12, 31, 50, 0.9); border-radius: 16px; padding: 18px; }
+      .board { display: grid; gap: 6px; margin-top: 12px; }
+      .board-row { display: grid; gap: 6px; grid-template-columns: repeat(var(--board-size), minmax(18px, 1fr)); }
+      .board-cell {
+        display: flex; align-items: center; justify-content: center; aspect-ratio: 1;
+        background: var(--cell-alt); border: 1px solid rgba(86,211,255,0.18); border-radius: 8px;
+        font-size: 0.7rem; color: var(--text); cursor: pointer;
+      }
+      .board-cell.water { background: var(--cell); }
+      .board-cell.ship { background: var(--ship); color: #03263b; }
+      .board-cell.hit { background: var(--hit); }
+      .board-cell.miss { background: var(--miss); }
+      .enemy-boards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-top: 12px; }
+      .enemy-card { padding: 12px; background: rgba(10, 28, 45, 0.9); border: 1px solid rgba(86,211,255,0.12); border-radius: 12px; }
+      .enemy-name { font-weight: 700; margin-bottom: 10px; }
+      @media (max-width: 700px) { .game-grid { grid-template-columns: 1fr; } }
+    </style>
   </head>
   <body>
     <div class="app-shell">
@@ -56,12 +155,9 @@
               <p class="eyebrow">Sala activa</p>
               <h2>Clave: <span id="roomCodeText"></span></h2>
             </div>
-            <div class="header-actions">
-              <button id="copyCodeBtn" class="secondary">Copiar clave</button>
-            </div>
+            <button id="copyCodeBtn" class="secondary">Copiar clave</button>
           </div>
-
-          <p id="roomMeta" class="muted"></p>
+          <p id="roomMeta"></p>
           <div id="playersList" class="player-list"></div>
 
           <div class="action-bar">
@@ -99,6 +195,324 @@
       </main>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+      const STORAGE_PREFIX = 'submarino.room.';
+      const state = { room: null, playerId: null };
+
+      const refs = {
+        setupScreen: document.getElementById('setupScreen'),
+        lobbyScreen: document.getElementById('lobbyScreen'),
+        gameScreen: document.getElementById('gameScreen'),
+        hostName: document.getElementById('hostName'),
+        maxPlayers: document.getElementById('maxPlayers'),
+        boardSize: document.getElementById('boardSize'),
+        joinCode: document.getElementById('joinCode'),
+        joinName: document.getElementById('joinName'),
+        roomCodeText: document.getElementById('roomCodeText'),
+        roomMeta: document.getElementById('roomMeta'),
+        playersList: document.getElementById('playersList'),
+        logList: document.getElementById('logList'),
+        toggleReadyBtn: document.getElementById('toggleReadyBtn'),
+        startGameBtn: document.getElementById('startGameBtn'),
+        turnLabel: document.getElementById('turnLabel'),
+        playerBoard: document.getElementById('playerBoard'),
+        enemyBoards: document.getElementById('enemyBoards')
+      };
+
+      function getRoomKey(code) { return `${STORAGE_PREFIX}${code}`; }
+      function generateCode() {
+        const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) {
+          code += letters[Math.floor(Math.random() * letters.length)];
+        }
+        return code;
+      }
+
+      function createBoard(size) {
+        const board = Array.from({ length: size }, () => Array.from({ length: size }, () => ({ type: 'water', status: 'none' })));
+        let placed = 0;
+        const shipCount = Math.max(3, Math.min(6, Math.ceil(size / 2)));
+        while (placed < shipCount) {
+          const row = Math.floor(Math.random() * size);
+          const col = Math.floor(Math.random() * size);
+          if (board[row][col].type === 'water') {
+            board[row][col].type = 'ship';
+            placed++;
+          }
+        }
+        return board;
+      }
+
+      function saveRoom(room) { localStorage.setItem(getRoomKey(room.code), JSON.stringify(room)); }
+      function loadRoom(code) { const raw = localStorage.getItem(getRoomKey(code)); return raw ? JSON.parse(raw) : null; }
+      function currentPlayer() { return state.room ? state.room.players.find(p => p.id === state.playerId) : null; }
+      function getCurrentTurnPlayer() {
+        if (!state.room || !state.room.turnOrder || !state.room.turnOrder.length) return null;
+        const curId = state.room.turnOrder[state.room.currentTurn];
+        return state.room.players.find(p => p.id === curId) || null;
+      }
+      function addLog(message) {
+        if (!state.room) return;
+        state.room.logs = state.room.logs || [];
+        state.room.logs.unshift(message);
+        if (state.room.logs.length > 8) state.room.logs.pop();
+      }
+
+      function syncState(room) {
+        state.room = room;
+        if (state.playerId && !state.room.players.some(player => player.id === state.playerId)) {
+          state.playerId = null;
+          sessionStorage.removeItem('submarino.playerId');
+        }
+
+        refs.setupScreen.classList.add('hidden');
+        if (state.room.phase === 'lobby') {
+          refs.lobbyScreen.classList.remove('hidden');
+          refs.gameScreen.classList.add('hidden');
+          renderLobby();
+        } else {
+          refs.lobbyScreen.classList.add('hidden');
+          refs.gameScreen.classList.remove('hidden');
+          renderGame();
+        }
+      }
+
+      function createRoom() {
+        const hostName = refs.hostName.value.trim();
+        const maxPlayers = Number(refs.maxPlayers.value);
+        const boardSize = Number(refs.boardSize.value);
+        if (!hostName) { alert('Necesitas un nombre para crear la sala.'); return; }
+
+        const code = generateCode();
+        const playerId = crypto.randomUUID();
+        const hostPlayer = { id: playerId, name: hostName, ready: true, eliminated: false, isHost: true, board: createBoard(boardSize) };
+        const room = {
+          code,
+          hostId: playerId,
+          boardSize,
+          maxPlayers,
+          phase: 'lobby',
+          players: [hostPlayer],
+          turnOrder: [playerId],
+          currentTurn: 0,
+          logs: [`La sala ${code} fue creada por ${hostName}.`]
+        };
+
+        state.playerId = playerId;
+        sessionStorage.setItem('submarino.roomCode', code);
+        sessionStorage.setItem('submarino.playerId', playerId);
+        saveRoom(room);
+        syncState(room);
+      }
+
+      function joinRoom() {
+        const code = refs.joinCode.value.trim().toUpperCase();
+        const name = refs.joinName.value.trim();
+        if (!code || !name) { alert('Escribe la clave de la sala y tu nombre.'); return; }
+
+        const room = loadRoom(code);
+        if (!room) { alert('No existe una sala con esa clave.'); return; }
+        if (room.phase !== 'lobby') { alert('La sala ya comenzó la partida.'); return; }
+        if (room.players.length >= room.maxPlayers) { alert('La sala ya alcanzó el máximo de participantes.'); return; }
+
+        const playerId = crypto.randomUUID();
+        room.players.push({ id: playerId, name, ready: false, eliminated: false, isHost: false, board: createBoard(room.boardSize) });
+        room.turnOrder.push(playerId);
+        room.logs.unshift(`${name} se unió a la sala.`);
+
+        state.playerId = playerId;
+        sessionStorage.setItem('submarino.roomCode', code);
+        sessionStorage.setItem('submarino.playerId', playerId);
+        saveRoom(room);
+        syncState(room);
+      }
+
+      function toggleReady() {
+        const player = currentPlayer();
+        if (!player || !state.room) return;
+        player.ready = !player.ready;
+        addLog(`${player.name} ${player.ready ? 'está listo' : 'no está listo'} para jugar.`);
+        saveRoom(state.room);
+        renderLobby();
+      }
+
+      function canStartGame() {
+        if (!state.room || state.room.hostId !== state.playerId) return false;
+        return state.room.players.length === state.room.maxPlayers && state.room.players.every(p => p.ready);
+      }
+
+      function startGame() {
+        if (!state.room || state.room.hostId !== state.playerId) return;
+        if (state.room.players.length !== state.room.maxPlayers) { alert('No todos los jugadores han entrado todavía.'); return; }
+        if (!state.room.players.every(p => p.ready)) { alert('Todos los jugadores deben confirmar.'); return; }
+
+        state.room.phase = 'playing';
+        state.room.currentTurn = 0;
+        state.room.logs.unshift('La partida ha comenzado.');
+        saveRoom(state.room);
+        syncState(state.room);
+      }
+
+      function renderLobby() {
+        if (!state.room) return;
+        refs.roomCodeText.textContent = state.room.code;
+        refs.roomMeta.textContent = `Tablero ${state.room.boardSize}x${state.room.boardSize} • ${state.room.players.length}/${state.room.maxPlayers} participantes`;
+        refs.playersList.innerHTML = '';
+
+        state.room.players.forEach(player => {
+          const card = document.createElement('div');
+          card.className = `player-card ${player.ready ? 'ready' : ''} ${player.id === state.room.hostId ? 'host' : ''}`;
+          card.innerHTML = `
+            <span class="player-name">${player.name}</span>
+            <span class="player-badge">${player.id === state.room.hostId ? 'Host' : player.ready ? 'Listo' : 'Esperando'}</span>
+          `;
+          refs.playersList.appendChild(card);
+        });
+
+        refs.logList.innerHTML = (state.room.logs || []).map(item => `<li>${item}</li>`).join('');
+        refs.toggleReadyBtn.textContent = currentPlayer()?.ready ? 'Quitar listo' : 'Marcar como listo';
+        refs.startGameBtn.disabled = !canStartGame();
+      }
+
+      function renderBoard(board, isMyBoard, targetPlayerId) {
+        const rows = [];
+        for (let row = 0; row < board.length; row++) {
+          const cells = [];
+          for (let col = 0; col < board[row].length; col++) {
+            const cell = board[row][col];
+            const stateClass = cell.status === 'hit' ? 'hit' : cell.status === 'miss' ? 'miss' : cell.type === 'ship' && isMyBoard ? 'ship' : 'water';
+            const isLocked = !isMyBoard && (cell.status === 'hit' || cell.status === 'miss' || !isMyTurn() || state.room.phase !== 'playing' || targetPlayerId === state.playerId);
+            const cellValue = cell.status === 'hit' ? 'X' : cell.status === 'miss' ? '·' : '';
+            const canAttack = !isMyBoard && !isLocked && targetPlayerId && targetPlayerId !== state.playerId;
+
+            cells.push(`
+              <button
+                class="board-cell ${stateClass}"
+                data-row="${row}"
+                data-col="${col}"
+                data-target="${targetPlayerId || ''}"
+                ${canAttack ? '' : 'disabled'}
+              >${cellValue}</button>
+            `);
+          }
+          rows.push(`<div class="board-row">${cells.join('')}</div>`);
+        }
+        return rows.join('');
+      }
+
+      function isMyTurn() {
+        if (!state.room || !state.playerId) return false;
+        const current = getCurrentTurnPlayer();
+        return current && current.id === state.playerId;
+      }
+
+      function renderGame() {
+        if (!state.room || state.room.phase !== 'playing') return;
+        const me = currentPlayer();
+        if (!me) return;
+
+        const current = getCurrentTurnPlayer();
+        refs.turnLabel.textContent = current ? `Turno de ${current.name}` : 'Turno';
+
+        refs.playerBoard.style.setProperty('--board-size', state.room.boardSize);
+        refs.playerBoard.innerHTML = renderBoard(me.board, true, null);
+
+        refs.enemyBoards.innerHTML = '';
+        state.room.players.forEach(player => {
+          if (player.id === state.playerId) return;
+          const card = document.createElement('div');
+          card.className = 'enemy-card';
+          card.innerHTML = `
+            <div class="enemy-name">${player.name}</div>
+            <div class="board" style="--board-size:${state.room.boardSize};">
+              ${renderBoard(player.board, false, player.id)}
+            </div>
+          `;
+          refs.enemyBoards.appendChild(card);
+        });
+      }
+
+      document.addEventListener('click', (event) => {
+        const button = event.target.closest('.board-cell');
+        if (!button || button.disabled) return;
+
+        const targetId = button.dataset.target;
+        const row = Number(button.dataset.row);
+        const col = Number(button.dataset.col);
+        if (!targetId || Number.isNaN(row) || Number.isNaN(col)) return;
+
+        if (!state.room || state.room.phase !== 'playing') return;
+        const current = getCurrentTurnPlayer();
+        if (!current || current.id !== state.playerId) { alert('No es tu turno.'); return; }
+
+        const target = state.room.players.find(player => player.id === targetId);
+        if (!target) return;
+
+        const cell = target.board[row][col];
+        if (cell.status === 'hit' || cell.status === 'miss') { alert('Esa posición ya fue atacada.'); return; }
+
+        const result = cell.type === 'ship' ? 'hit' : 'miss';
+        cell.status = result;
+        addLog(`${current.name} atacó a ${target.name} en ${row + 1}, ${col + 1}: ${result === 'hit' ? 'impacto' : 'agua'}.`);
+
+        const hasRemainingShips = target.board.some(boardRow => boardRow.some(inner => inner.type === 'ship' && inner.status !== 'hit'));
+        if (!hasRemainingShips) {
+          target.eliminated = true;
+          addLog(`${target.name} fue eliminado.`);
+        }
+
+        const alive = state.room.players.filter(player => !player.eliminated);
+        if (alive.length <= 1) {
+          state.room.phase = 'finished';
+          state.room.winnerId = alive[0]?.id || current.id;
+          addLog(`La partida terminó. Ganó ${alive[0] ? alive[0].name : current.name}.`);
+        } else {
+          let nextIndex = state.room.turnOrder.indexOf(current.id) + 1;
+          if (nextIndex >= state.room.turnOrder.length) nextIndex = 0;
+          while (state.room.players.find(p => p.id === state.room.turnOrder[nextIndex])?.eliminated) {
+            nextIndex++;
+            if (nextIndex >= state.room.turnOrder.length) nextIndex = 0;
+          }
+          state.room.currentTurn = nextIndex;
+        }
+
+        saveRoom(state.room);
+        renderGame();
+      });
+
+      refs.createRoomBtn.addEventListener('click', createRoom);
+      refs.joinRoomBtn.addEventListener('click', joinRoom);
+      refs.toggleReadyBtn.addEventListener('click', toggleReady);
+      refs.startGameBtn.addEventListener('click', startGame);
+      refs.copyCodeBtn.addEventListener('click', async () => {
+        if (!state.room) return;
+        await navigator.clipboard.writeText(state.room.code);
+      });
+      refs.leaveGameBtn = document.getElementById('leaveGameBtn');
+      refs.leaveGameBtn.addEventListener('click', () => {
+        state.playerId = null;
+        sessionStorage.removeItem('submarino.roomCode');
+        sessionStorage.removeItem('submarino.playerId');
+        if (state.room) {
+          localStorage.removeItem(getRoomKey(state.room.code));
+        }
+        state.room = null;
+        refs.setupScreen.classList.remove('hidden');
+        refs.lobbyScreen.classList.add('hidden');
+        refs.gameScreen.classList.add('hidden');
+      });
+
+      const savedRoomCode = sessionStorage.getItem('submarino.roomCode');
+      const savedPlayerId = sessionStorage.getItem('submarino.playerId');
+      if (savedRoomCode) {
+        const room = loadRoom(savedRoomCode);
+        if (room) {
+          state.room = room;
+          state.playerId = savedPlayerId || room.hostId;
+          syncState(room);
+        }
+      }
+    </script>
   </body>
 </html>
