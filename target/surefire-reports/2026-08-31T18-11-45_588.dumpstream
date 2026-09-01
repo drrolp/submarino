@@ -1,0 +1,5 @@
+# Created at 2026-08-31T18:11:45.782
+Boot Manifest-JAR contains absolute paths in classpath 'D:\dev\submarino\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+

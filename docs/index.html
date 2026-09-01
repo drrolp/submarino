@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submarino</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Juego multijugador</p>
+          <h1>Submarino</h1>
+        </div>
+      </header>
+
+      <main>
+        <section id="setupScreen" class="panel">
+          <div class="grid two-columns">
+            <div class="card">
+              <h2>Crear sala</h2>
+              <label>
+                Tu nombre
+                <input id="hostName" type="text" maxlength="20" placeholder="Host" />
+              </label>
+              <label>
+                Participantes
+                <input id="maxPlayers" type="number" min="2" max="8" value="2" />
+              </label>
+              <label>
+                Tamaño del tablero
+                <input id="boardSize" type="number" min="5" max="12" value="6" />
+              </label>
+              <button id="createRoomBtn" class="primary">Crear sala</button>
+            </div>
+
+            <div class="card">
+              <h2>Unirse a la sala</h2>
+              <label>
+                Clave de la sala
+                <input id="joinCode" type="text" maxlength="8" placeholder="Ej. ABC123" />
+              </label>
+              <label>
+                Tu nombre
+                <input id="joinName" type="text" maxlength="20" placeholder="Jugador" />
+              </label>
+              <button id="joinRoomBtn">Unirme</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="lobbyScreen" class="panel hidden">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Sala activa</p>
+              <h2>Clave: <span id="roomCodeText"></span></h2>
+            </div>
+            <div class="header-actions">
+              <button id="copyCodeBtn" class="secondary">Copiar clave</button>
+            </div>
+          </div>
+
+          <p id="roomMeta" class="muted"></p>
+          <div id="playersList" class="player-list"></div>
+
+          <div class="action-bar">
+            <button id="toggleReadyBtn" class="primary">Marcar como listo</button>
+            <button id="startGameBtn" class="success">Iniciar partida</button>
+          </div>
+
+          <div class="log-box">
+            <h3>Eventos</h3>
+            <ul id="logList"></ul>
+          </div>
+        </section>
+
+        <section id="gameScreen" class="panel hidden">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Partida en curso</p>
+              <h2 id="turnLabel">Turno</h2>
+            </div>
+            <button id="leaveGameBtn" class="secondary">Salir</button>
+          </div>
+
+          <div class="game-grid">
+            <div class="board-panel">
+              <h3>Mi tablero</h3>
+              <div id="playerBoard" class="board"></div>
+            </div>
+
+            <div class="board-panel">
+              <h3>Tableros de rivales</h3>
+              <div id="enemyBoards" class="enemy-boards"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
