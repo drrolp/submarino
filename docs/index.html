@@ -208,6 +208,9 @@
         boardSize: document.getElementById('boardSize'),
         joinCode: document.getElementById('joinCode'),
         joinName: document.getElementById('joinName'),
+        createRoomBtn: document.getElementById('createRoomBtn'),
+        joinRoomBtn: document.getElementById('joinRoomBtn'),
+        copyCodeBtn: document.getElementById('copyCodeBtn'),
         roomCodeText: document.getElementById('roomCodeText'),
         roomMeta: document.getElementById('roomMeta'),
         playersList: document.getElementById('playersList'),
@@ -216,7 +219,8 @@
         startGameBtn: document.getElementById('startGameBtn'),
         turnLabel: document.getElementById('turnLabel'),
         playerBoard: document.getElementById('playerBoard'),
-        enemyBoards: document.getElementById('enemyBoards')
+        enemyBoards: document.getElementById('enemyBoards'),
+        leaveGameBtn: document.getElementById('leaveGameBtn')
       };
 
       function getRoomKey(code) { return `${STORAGE_PREFIX}${code}`; }
@@ -481,16 +485,15 @@
         renderGame();
       });
 
-      refs.createRoomBtn.addEventListener('click', createRoom);
-      refs.joinRoomBtn.addEventListener('click', joinRoom);
-      refs.toggleReadyBtn.addEventListener('click', toggleReady);
-      refs.startGameBtn.addEventListener('click', startGame);
-      refs.copyCodeBtn.addEventListener('click', async () => {
+      if (refs.createRoomBtn) refs.createRoomBtn.addEventListener('click', createRoom);
+      if (refs.joinRoomBtn) refs.joinRoomBtn.addEventListener('click', joinRoom);
+      if (refs.toggleReadyBtn) refs.toggleReadyBtn.addEventListener('click', toggleReady);
+      if (refs.startGameBtn) refs.startGameBtn.addEventListener('click', startGame);
+      if (refs.copyCodeBtn) refs.copyCodeBtn.addEventListener('click', async () => {
         if (!state.room) return;
         await navigator.clipboard.writeText(state.room.code);
       });
-      refs.leaveGameBtn = document.getElementById('leaveGameBtn');
-      refs.leaveGameBtn.addEventListener('click', () => {
+      if (refs.leaveGameBtn) refs.leaveGameBtn.addEventListener('click', () => {
         state.playerId = null;
         sessionStorage.removeItem('submarino.roomCode');
         sessionStorage.removeItem('submarino.playerId');
